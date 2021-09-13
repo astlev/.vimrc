@@ -2,7 +2,7 @@
 set nocompatible
 
 " OPEN NEW TAB AND SEARCH FILE:
-map <C-t> :tabnew<CR><C-p>
+map <C-t> :enew<CR><C-p>
 
 nnoremap ; :
 
@@ -21,6 +21,9 @@ nnoremap * *N
 " USE TAB TO JUMP FROM BRACKET TO BRACKET:
 nnoremap <tab> %
 vnoremap <tab> %
+
+" CTRL+B TO SWITCH BUFFER
+nnoremap <C-l> :ls<cr>:b<space>
 
 " TURN OFF NARROW KEYS IN NORMAL MODE:
 "nnoremap <up> <nop>
@@ -70,6 +73,7 @@ let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 " size of netrw split
 let g:netrw_winsize = 25
+" alt+1 opens side panel with file tree
 map <M-1> :Vexplore<CR>
 " NETRW SETTINGS END
 
@@ -77,18 +81,29 @@ map <M-1> :Vexplore<CR>
 "colorscheme zellner
 set background=dark
 colorscheme vimBoxColorsDuringLoad
-set guifont=JetBrains\ Mono:h18
+set guifont=Cascadia\ Code\ Light:h18
+"set guifont=Consolas:h14
+set lsp=6
 
 "TURN ON NUMBERS OF LINE:
 set number
-set relativenumber
+"set relativenumber
+"set nu rnu
+:augroup numbertoggle
+:  autocmd!
+:  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set rnu   | endif
+:  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
+:augroup END
 
 "SET WINDOW SIZE:
 set lines=33
-set columns=110
+set columns=130
 
 "TURN ON AUTODEFINE SYNTAX OF FILE:
 syntax on
+
+"CONFIGURE JENKINSFILE SYNTAX:
+au BufNewFile,BufRead Jenkinsfile setf groovy
 
 set backspace=indent,eol,start
 set foldmethod=manual
@@ -99,6 +114,7 @@ set guioptions-=T
 set guioptions-=b
 set guioptions-=m
 set guioptions-=r
+set guioptions-=L
 
 "SHOW CURSOR POSITION IN CORNER OF WINDOW:
 set ruler
@@ -136,12 +152,13 @@ set wildmenu
 set autowrite
 
 " SET NOWRAP:
-set wrapmargin=5
+set wrap linebreak
+set wrapmargin=0
 
 set listchars=tab:<-,trail:·
 set list
 
-set scrolloff=7
+set scrolloff=5
 
 set foldmethod=manual
 set foldcolumn=3
@@ -149,17 +166,12 @@ set foldcolumn=3
 " SHOW STATUSLINE:
 set laststatus=2
 
-""
-"""set statusline=%t\ %y%m%r[%{&fileencoding}]%<[%{strftime(\"%d.%m.%y\",getftime(expand(\"%:p\")))}]%k%=%-14.(%l,%c%V%)\ %P
-"""set statusline=%F%m%r%h%w%=[fileenc=%{&fileencoding},enc=%{&encoding}\]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
-""set statusline=%<%f%h%m%r%=[%{&fileencodings}]\ %{&encoding}\ %l,%c%V\ %p%%\ %L
-""set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\ \ Column:\ %c
-""
-"""set cursorline
-"""set cursorcolumn
-""
-"""position of window
-""winpos 0 0
+" SET STATUSLINE:
+let gitBranch=substitute(system("git rev-parse --abbrev-ref HEAD"), "\n", "", "g")
+:set statusline=%<%f\ %h%m%r%=\ %(%l:%c%V%)\ \|%L\|\ \ %{gitBranch}
+
+"position of window
+winpos 0 0
 ""
 """encoding
 ""set encoding=utf8
@@ -172,3 +184,6 @@ function! HasPaste()
     endif
     return ''
 endfunction
+
+" SET MAXIMIZED WINDOW:
+au GUIEnter * sim ~x
